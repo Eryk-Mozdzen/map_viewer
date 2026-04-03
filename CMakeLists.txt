@@ -4,6 +4,9 @@ project(map_viewer)
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(CURL REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(STB REQUIRED stb)
 
 include(FetchContent)
 FetchContent_Declare(imgui
@@ -38,4 +41,6 @@ target_link_libraries(${PROJECT_NAME}
 	m
     glfw
     OpenGL::GL
+	CURL::libcurl
+	stb
 )

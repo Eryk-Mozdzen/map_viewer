@@ -9,7 +9,10 @@
 sudo apt install -y \
     make \
     cmake \
-    libglfw3-dev
+    libopengl-dev \
+    libglfw3-dev \
+    libcurl4-openssl-dev \
+    libstb-dev
 ```
 
 ### Build
