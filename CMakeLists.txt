@@ -17,6 +17,7 @@ FetchContent_MakeAvailable(imgui)
 
 add_executable(${PROJECT_NAME}
 	"main.cpp"
+	"server.cpp"
 	"${imgui_SOURCE_DIR}/imgui.cpp"
 	"${imgui_SOURCE_DIR}/imgui_draw.cpp"
 	"${imgui_SOURCE_DIR}/imgui_tables.cpp"
@@ -35,6 +36,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 	-Wall
 	-Wextra
 	-Wpedantic
+	-std=c++20
 )
 
 target_link_libraries(${PROJECT_NAME}
