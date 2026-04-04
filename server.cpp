@@ -20,13 +20,17 @@ static std::string get_filename(const std::tuple<int, int, int> coordinates) {
            std::to_string(std::get<2>(coordinates)) + ".png";
 }
 
-server::server(const std::filesystem::path cache_directory, const std::string user_agent)
+server::server(const std::filesystem::path cache_directory,
+               const std::chrono::milliseconds minimal_request_period,
+               const std::string user_agent)
     : cache_directory{cache_directory} {
     if(!std::filesystem::exists(cache_directory)) {
         std::filesystem::create_directories(cache_directory);
     }
 
-    download_thread = std::jthread([this, user_agent](std::stop_token st) {
+    download_thread = std::jthread([this, minimal_request_period, user_agent](std::stop_token st) {
+        std::chrono::steady_clock::time_point downland_timepoint = std::chrono::steady_clock::now();
+
         while(!st.stop_requested()) {
             std::tuple<int, int, int> coordinates;
             try {
@@ -45,6 +49,7 @@ server::server(const std::filesystem::path cache_directory, const std::string us
             std::ofstream file(filepath_tmp, std::ios::binary);
 
             CURL *curl = curl_easy_init();
+
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
             curl_easy_setopt(
@@ -55,14 +60,23 @@ server::server(const std::filesystem::path cache_directory, const std::string us
                     return size * nmemb;
                 });
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &file);
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+            std::this_thread::sleep_until(downland_timepoint + minimal_request_period);
             if(curl_easy_perform(curl) == CURLE_OK) {
                 std::filesystem::rename(filepath_tmp, filepath);
             }
-            curl_easy_cleanup(curl);
+            downland_timepoint = std::chrono::steady_clock::now();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            curl_easy_cleanup(curl);
         }
     });
+}
+
+server::~server() {
+    for(const auto &[coords, texture] : textures) {
+        glDeleteTextures(1, &texture);
+    }
 }
 
 void server::draw(ImDrawList &drawer,
@@ -84,12 +98,6 @@ void server::draw(ImDrawList &drawer,
         if(!download_queue.contains(coordinates)) {
             download_queue.push(coordinates);
         }
-
-        drawer.AddRect(position, ImVec2(position.x + 256, position.y + 256), IM_COL32(0, 0, 0, 255),
-                       0, ImDrawFlags_None, 1);
-        char buf[64];
-        sprintf(buf, "(%d, %d)", y, x);
-        drawer.AddText(position, IM_COL32(0, 0, 0, 255), buf);
         return;
     }
 
@@ -97,19 +105,25 @@ void server::draw(ImDrawList &drawer,
         int width;
         int height;
         int channels;
-        const unsigned char *pixels = stbi_load(filepath.c_str(), &width, &height, &channels, 4);
+        unsigned char *pixels = stbi_load(filepath.c_str(), &width, &height, &channels, 4);
 
-        GLuint texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                     pixels);
+        if((width == 256) && (height == 256)) {
+            GLuint texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                         pixels);
 
-        textures.insert({coordinates, texture});
+            textures.insert({coordinates, texture});
+        }
+
+        stbi_image_free(pixels);
     }
 
-    drawer.AddImage(static_cast<ImTextureID>(textures.at(coordinates)), position,
-                    ImVec2(position.x + 256, position.y + 256));
+    if(textures.contains(coordinates)) {
+        drawer.AddImage(static_cast<ImTextureID>(textures.at(coordinates)), position,
+                        ImVec2(position.x + 256, position.y + 256));
+    }
 }

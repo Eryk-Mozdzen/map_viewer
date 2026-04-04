@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cmath>
 #include <sstream>
 #include <string>
@@ -21,8 +22,9 @@ static std::pair<double, double> latlon_to_mercator(const double lat, const doub
 }
 
 server_bhmw::server_bhmw(const std::filesystem::path cache_directory)
-    : server{cache_directory, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like "
-                              "Gecko) Chrome/145.0.0.0 Safari/537.36"} {
+    : server{cache_directory, std::chrono::milliseconds(1000),
+             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like "
+             "Gecko) Chrome/145.0.0.0 Safari/537.36"} {
 }
 
 std::string server_bhmw::generate_url(const int zoom, const int x, const int y) {

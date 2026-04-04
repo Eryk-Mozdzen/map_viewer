@@ -44,8 +44,8 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    ImVec2 offset(0.0f, 0.0f);
-    int zoom = 3;
+    ImVec2 offset(-143856, -83068);
+    int zoom = 10;
     server_osm osm("cache_osm");
     server_bhmw bhmw("cache_bhmw");
 
@@ -65,6 +65,10 @@ int main() {
         ImGui::Begin("window", nullptr,
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
                          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
+
+        ImGui::Text("offset x %f", offset.x);
+        ImGui::Text("offset y %f", offset.y);
+        ImGui::Text("zoom %d", zoom);
 
         const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
         const ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
@@ -97,7 +101,7 @@ int main() {
             row <= (static_cast<int>(canvas_sz.y - offset.y) / tile); row++) {
             for(int col = (static_cast<int>(-offset.x) / tile);
                 col <= (static_cast<int>(canvas_sz.x - offset.x) / tile); col++) {
-                // osm.draw(*drawer, canvas_p0 + offset + tile * ImVec2(col, row), zoom, col, row);
+                osm.draw(*drawer, canvas_p0 + offset + tile * ImVec2(col, row), zoom, col, row);
                 bhmw.draw(*drawer, canvas_p0 + offset + tile * ImVec2(col, row), zoom, col, row);
             }
         }
