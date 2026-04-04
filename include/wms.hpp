@@ -1,5 +1,5 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#ifndef WMS_HPP
+#define WMS_HPP
 
 #include <chrono>
 #include <filesystem>
@@ -13,7 +13,7 @@
 
 #include "queue.hpp"
 
-class server {
+class wms {
     const std::filesystem::path cache_directory;
     queue<std::tuple<int, int, int>> download_queue;
     std::jthread download_thread;
@@ -22,10 +22,10 @@ class server {
     virtual std::string generate_url(const int zoom, const int x, const int y) = 0;
 
 public:
-    server(const std::filesystem::path cache_directory,
-           const std::chrono::milliseconds minimal_request_period = std::chrono::milliseconds(0),
-           const std::string user_agent = "app");
-    ~server();
+    wms(const std::filesystem::path cache_directory,
+        const std::chrono::milliseconds minimal_request_period = std::chrono::milliseconds(0),
+        const std::string user_agent = "app");
+    ~wms();
 
     void draw(ImDrawList &drawer, const ImVec2 position, const int zoom, const int x, const int y);
 };

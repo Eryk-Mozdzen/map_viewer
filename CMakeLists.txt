@@ -16,10 +16,10 @@ FetchContent_Declare(imgui
 FetchContent_MakeAvailable(imgui)
 
 add_executable(${PROJECT_NAME}
-	"main.cpp"
-	"server.cpp"
-	"server_osm.cpp"
-	"server_bhmw.cpp"
+	"src/main.cpp"
+	"src/wms.cpp"
+	"src/wms_osm.cpp"
+	"src/wms_bhmw.cpp"
 	"${imgui_SOURCE_DIR}/imgui.cpp"
 	"${imgui_SOURCE_DIR}/imgui_draw.cpp"
 	"${imgui_SOURCE_DIR}/imgui_tables.cpp"

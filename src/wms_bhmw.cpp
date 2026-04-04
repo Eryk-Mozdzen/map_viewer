@@ -4,7 +4,7 @@
 #include <string>
 #include <tuple>
 
-#include "server_bhmw.hpp"
+#include "wms_bhmw.hpp"
 
 static std::pair<double, double> num_to_deg(const int zoom, const int x, const int y) {
     const double n = std::pow(2.0, zoom);
@@ -21,13 +21,13 @@ static std::pair<double, double> latlon_to_mercator(const double lat, const doub
     return {x, y};
 }
 
-server_bhmw::server_bhmw()
-    : server{"cache_bhmw", std::chrono::milliseconds(1000),
-             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like "
-             "Gecko) Chrome/145.0.0.0 Safari/537.36"} {
+wms_bhmw::wms_bhmw()
+    : wms{"cache_bhmw", std::chrono::milliseconds(1000),
+          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 "
+          "Safari/537.36"} {
 }
 
-std::string server_bhmw::generate_url(const int zoom, const int x, const int y) {
+std::string wms_bhmw::generate_url(const int zoom, const int x, const int y) {
     const auto [lat1, lon1] = num_to_deg(zoom, x + 0, y + 0);
     const auto [lat2, lon2] = num_to_deg(zoom, x + 1, y + 1);
 

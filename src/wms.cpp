@@ -12,7 +12,7 @@
 #include <imgui.h>
 #include <stb/stb_image.h>
 
-#include "server.hpp"
+#include "wms.hpp"
 
 static std::string get_filename(const std::tuple<int, int, int> coordinates) {
     return std::to_string(std::get<0>(coordinates)) + "_" +
@@ -20,9 +20,9 @@ static std::string get_filename(const std::tuple<int, int, int> coordinates) {
            std::to_string(std::get<2>(coordinates)) + ".png";
 }
 
-server::server(const std::filesystem::path cache_directory,
-               const std::chrono::milliseconds minimal_request_period,
-               const std::string user_agent)
+wms::wms(const std::filesystem::path cache_directory,
+         const std::chrono::milliseconds minimal_request_period,
+         const std::string user_agent)
     : cache_directory{cache_directory} {
     if(!std::filesystem::exists(cache_directory)) {
         std::filesystem::create_directories(cache_directory);
@@ -73,17 +73,17 @@ server::server(const std::filesystem::path cache_directory,
     });
 }
 
-server::~server() {
+wms::~wms() {
     for(const auto &[coords, texture] : textures) {
         glDeleteTextures(1, &texture);
     }
 }
 
-void server::draw(ImDrawList &drawer,
-                  const ImVec2 position,
-                  const int zoom,
-                  const int x,
-                  const int y) {
+void wms::draw(ImDrawList &drawer,
+               const ImVec2 position,
+               const int zoom,
+               const int x,
+               const int y) {
     const int tiles = 1 << zoom;
 
     if((x < 0) || (x >= tiles) || (y < 0) || (y >= tiles)) {

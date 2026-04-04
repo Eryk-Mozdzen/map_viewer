@@ -6,8 +6,8 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <imgui.h>
 
-#include "server_bhmw.hpp"
-#include "server_osm.hpp"
+#include "wms_bhmw.hpp"
+#include "wms_osm.hpp"
 
 ImVec2 operator+(const ImVec2 &v1, const ImVec2 v2) {
     return ImVec2(v1.x + v2.x, v1.y + v2.y);
@@ -49,8 +49,8 @@ int main() {
     bool use_osm = true;
     bool use_bhmw = true;
 
-    server_osm osm;
-    server_bhmw bhmw;
+    wms_osm osm;
+    wms_bhmw bhmw;
 
     while(!glfwWindowShouldClose(window)) {
         glfwPollEvents();
