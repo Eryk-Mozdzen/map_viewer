@@ -1,7 +1,11 @@
 # Map Viewer for OSM and BHMW
 
-- [Open Street Map](https://www.openstreetmap.org/#map=7/52.018/19.137)
-- [Biuro Hydrograficzne Marynarki Wojennej](https://bhmw-wms.wp.mil.pl/)
+- asynchronous tile downloading
+- tile caching
+- support for [Open Street Map](https://www.openstreetmap.org/#map=7/52.018/19.137)
+- support for [Biuro Hydrograficzne Marynarki Wojennej](https://bhmw-wms.wp.mil.pl/)
+
+![image](docs/img1.png)
 
 ### Dependencies
 
