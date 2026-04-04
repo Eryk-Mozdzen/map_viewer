@@ -39,6 +39,7 @@ int main() {
     glfwSwapInterval(1);
 
     ImGui::CreateContext();
+    ImGui::StyleColorsLight();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
@@ -58,7 +59,12 @@ int main() {
 
         ImGui::NewFrame();
 
-        ImGui::Begin("Hello, world!");
+        const ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::Begin("window", nullptr,
+                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
 
         const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
         const ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
@@ -104,7 +110,7 @@ int main() {
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
-        glClearColor(0, 0, 0, 0);
+        glClearColor(255, 255, 255, 255);
         glClear(GL_COLOR_BUFFER_BIT);
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

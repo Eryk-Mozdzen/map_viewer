@@ -85,12 +85,11 @@ void server::draw(ImDrawList &drawer,
             download_queue.push(coordinates);
         }
 
-        drawer.AddRect(position, ImVec2(position.x + 256, position.y + 256),
-                       IM_COL32(255, 255, 255, 255), 0, ImDrawFlags_None, 1);
+        drawer.AddRect(position, ImVec2(position.x + 256, position.y + 256), IM_COL32(0, 0, 0, 255),
+                       0, ImDrawFlags_None, 1);
         char buf[64];
         sprintf(buf, "(%d, %d)", y, x);
-        drawer.AddText(position, IM_COL32(255, 255, 255, 255), buf);
-
+        drawer.AddText(position, IM_COL32(0, 0, 0, 255), buf);
         return;
     }
 
