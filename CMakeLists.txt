@@ -18,6 +18,8 @@ FetchContent_MakeAvailable(imgui)
 add_executable(${PROJECT_NAME}
 	"main.cpp"
 	"server.cpp"
+	"server_osm.cpp"
+	"server_bhmw.cpp"
 	"${imgui_SOURCE_DIR}/imgui.cpp"
 	"${imgui_SOURCE_DIR}/imgui_draw.cpp"
 	"${imgui_SOURCE_DIR}/imgui_tables.cpp"

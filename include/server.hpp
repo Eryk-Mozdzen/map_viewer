@@ -18,8 +18,10 @@ class server {
     std::jthread download_thread;
     std::map<std::tuple<int, int, int>, GLuint> textures;
 
+    virtual std::string generate_url(const int zoom, const int x, const int y) = 0;
+
 public:
-    server(const std::filesystem::path cache_directory);
+    server(const std::filesystem::path cache_directory, const std::string user_agent = "app");
 
     void draw(ImDrawList &drawer, const ImVec2 position, const int zoom, const int x, const int y);
 };

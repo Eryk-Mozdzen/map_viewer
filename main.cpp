@@ -6,7 +6,8 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <imgui.h>
 
-#include "server.hpp"
+#include "server_bhmw.hpp"
+#include "server_osm.hpp"
 
 ImVec2 operator+(const ImVec2 &v1, const ImVec2 v2) {
     return ImVec2(v1.x + v2.x, v1.y + v2.y);
@@ -44,7 +45,8 @@ int main() {
 
     ImVec2 offset(0.0f, 0.0f);
     int zoom = 3;
-    server serv("cache");
+    server_osm osm("cache_osm");
+    server_bhmw bhmw("cache_bhmw");
 
     while(!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -63,7 +65,6 @@ int main() {
         const ImVec2 canvas_p1 = canvas_p0 + canvas_sz;
 
         constexpr int tile = 256;
-        const int tiles = 1 << zoom;
 
         const ImGuiIO &io = ImGui::GetIO();
         ImGui::InvisibleButton("canvas", canvas_sz,
@@ -74,14 +75,14 @@ int main() {
             offset.y += io.MouseDelta.y;
         }
         if((io.MouseWheel > 0) && (zoom < 20)) {
-            offset.x -= tile * (1 << zoom) / 2;
-            offset.y -= tile * (1 << zoom) / 2;
+            offset.x *= 2;
+            offset.y *= 2;
             zoom++;
         }
         if((io.MouseWheel < 0) && (zoom > 0)) {
             zoom--;
-            offset.x += tile * (1 << zoom) / 2;
-            offset.y += tile * (1 << zoom) / 2;
+            offset.x /= 2;
+            offset.y /= 2;
         }
 
         ImDrawList *drawer = ImGui::GetWindowDrawList();
@@ -90,18 +91,8 @@ int main() {
             row <= (static_cast<int>(canvas_sz.y - offset.y) / tile); row++) {
             for(int col = (static_cast<int>(-offset.x) / tile);
                 col <= (static_cast<int>(canvas_sz.x - offset.x) / tile); col++) {
-                if((row >= 0) && (row < tiles) && (col >= 0) && (col < tiles)) {
-                    /*drawer->AddRect(canvas_p0 + offset + tile * ImVec2(col + 0, row + 0),
-                                    canvas_p0 + offset + tile * ImVec2(col + 1, row + 1),
-                                    IM_COL32(255, 255, 255, 255), 0, ImDrawFlags_None, 1);
-                    char buf[64];
-                    sprintf(buf, "(%d, %d)", row, col);
-                    drawer->AddText(canvas_p0 + offset + tile * ImVec2(col, row),
-                                    IM_COL32(255, 255, 255, 255), buf);*/
-
-                    serv.draw(*drawer, canvas_p0 + offset + tile * ImVec2(col, row), zoom, col,
-                              row);
-                }
+                // osm.draw(*drawer, canvas_p0 + offset + tile * ImVec2(col, row), zoom, col, row);
+                bhmw.draw(*drawer, canvas_p0 + offset + tile * ImVec2(col, row), zoom, col, row);
             }
         }
         drawer->PopClipRect();

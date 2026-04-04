@@ -20,12 +20,13 @@ static std::string get_filename(const std::tuple<int, int, int> coordinates) {
            std::to_string(std::get<2>(coordinates)) + ".png";
 }
 
-server::server(const std::filesystem::path cache_directory) : cache_directory{cache_directory} {
+server::server(const std::filesystem::path cache_directory, const std::string user_agent)
+    : cache_directory{cache_directory} {
     if(!std::filesystem::exists(cache_directory)) {
         std::filesystem::create_directories(cache_directory);
     }
 
-    download_thread = std::jthread([this](std::stop_token st) {
+    download_thread = std::jthread([this, user_agent](std::stop_token st) {
         while(!st.stop_requested()) {
             std::tuple<int, int, int> coordinates;
             try {
@@ -34,10 +35,8 @@ server::server(const std::filesystem::path cache_directory) : cache_directory{ca
                 continue;
             }
 
-            const std::string url = "https://tile.openstreetmap.org/" +
-                                    std::to_string(std::get<0>(coordinates)) + "/" +
-                                    std::to_string(std::get<1>(coordinates)) + "/" +
-                                    std::to_string(std::get<2>(coordinates)) + ".png";
+            const std::string url = generate_url(std::get<0>(coordinates), std::get<1>(coordinates),
+                                                 std::get<2>(coordinates));
 
             const std::string filename = get_filename(coordinates);
             const std::filesystem::path filepath = this->cache_directory / filename;
@@ -47,7 +46,7 @@ server::server(const std::filesystem::path cache_directory) : cache_directory{ca
 
             CURL *curl = curl_easy_init();
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_USERAGENT, "app");
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
             curl_easy_setopt(
                 curl, CURLOPT_WRITEFUNCTION,
                 +[](char *ptr, size_t size, size_t nmemb, void *userdata) -> size_t {
@@ -60,6 +59,8 @@ server::server(const std::filesystem::path cache_directory) : cache_directory{ca
                 std::filesystem::rename(filepath_tmp, filepath);
             }
             curl_easy_cleanup(curl);
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
         }
     });
 }
@@ -69,6 +70,12 @@ void server::draw(ImDrawList &drawer,
                   const int zoom,
                   const int x,
                   const int y) {
+    const int tiles = 1 << zoom;
+
+    if((x < 0) || (x >= tiles) || (y < 0) || (y >= tiles)) {
+        return;
+    }
+
     const std::tuple<int, int, int> coordinates(zoom, x, y);
 
     const std::filesystem::path filepath = cache_directory / get_filename(coordinates);
@@ -77,6 +84,13 @@ void server::draw(ImDrawList &drawer,
         if(!download_queue.contains(coordinates)) {
             download_queue.push(coordinates);
         }
+
+        drawer.AddRect(position, ImVec2(position.x + 256, position.y + 256),
+                       IM_COL32(255, 255, 255, 255), 0, ImDrawFlags_None, 1);
+        char buf[64];
+        sprintf(buf, "(%d, %d)", y, x);
+        drawer.AddText(position, IM_COL32(255, 255, 255, 255), buf);
+
         return;
     }
 
