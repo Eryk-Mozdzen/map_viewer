@@ -46,8 +46,11 @@ int main() {
 
     ImVec2 offset(-143856, -83068);
     int zoom = 10;
-    server_osm osm("cache_osm");
-    server_bhmw bhmw("cache_bhmw");
+    bool use_osm = true;
+    bool use_bhmw = true;
+
+    server_osm osm;
+    server_bhmw bhmw;
 
     while(!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -69,6 +72,8 @@ int main() {
         ImGui::Text("offset x %f", offset.x);
         ImGui::Text("offset y %f", offset.y);
         ImGui::Text("zoom %d", zoom);
+        ImGui::Checkbox("use OSM", &use_osm);
+        ImGui::Checkbox("use BHMW", &use_bhmw);
 
         const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
         const ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
@@ -97,12 +102,16 @@ int main() {
 
         ImDrawList *drawer = ImGui::GetWindowDrawList();
         drawer->PushClipRect(canvas_p0, canvas_p1, true);
-        for(int row = (static_cast<int>(-offset.y) / tile);
-            row <= (static_cast<int>(canvas_sz.y - offset.y) / tile); row++) {
-            for(int col = (static_cast<int>(-offset.x) / tile);
-                col <= (static_cast<int>(canvas_sz.x - offset.x) / tile); col++) {
-                osm.draw(*drawer, canvas_p0 + offset + tile * ImVec2(col, row), zoom, col, row);
-                bhmw.draw(*drawer, canvas_p0 + offset + tile * ImVec2(col, row), zoom, col, row);
+        for(int y = (static_cast<int>(-offset.y) / tile);
+            y <= (static_cast<int>(canvas_sz.y - offset.y) / tile); y++) {
+            for(int x = (static_cast<int>(-offset.x) / tile);
+                x <= (static_cast<int>(canvas_sz.x - offset.x) / tile); x++) {
+                if(use_osm) {
+                    osm.draw(*drawer, canvas_p0 + offset + tile * ImVec2(x, y), zoom, x, y);
+                }
+                if(use_bhmw) {
+                    bhmw.draw(*drawer, canvas_p0 + offset + tile * ImVec2(x, y), zoom, x, y);
+                }
             }
         }
         drawer->PopClipRect();

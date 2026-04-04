@@ -2,7 +2,7 @@
 
 #include "server_osm.hpp"
 
-server_osm::server_osm(const std::filesystem::path cache_directory) : server{cache_directory} {
+server_osm::server_osm() : server{"cache_osm"} {
 }
 
 std::string server_osm::generate_url(const int zoom, const int x, const int y) {

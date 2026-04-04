@@ -16,13 +16,13 @@ static std::pair<double, double> num_to_deg(const int zoom, const int x, const i
 
 static std::pair<double, double> latlon_to_mercator(const double lat, const double lon) {
     const double x = lon * 20037508.34 / 180.0;
-    double y = std::log(std::tan((90.0 + lat) * M_PI / 360.0)) / (M_PI / 180.0);
-    y = y * 20037508.34 / 180.0;
+    const double y =
+        (20037508.34 / 180.0) * std::log(std::tan((90.0 + lat) * M_PI / 360.0)) / (M_PI / 180.0);
     return {x, y};
 }
 
-server_bhmw::server_bhmw(const std::filesystem::path cache_directory)
-    : server{cache_directory, std::chrono::milliseconds(1000),
+server_bhmw::server_bhmw()
+    : server{"cache_bhmw", std::chrono::milliseconds(1000),
              "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like "
              "Gecko) Chrome/145.0.0.0 Safari/537.36"} {
 }

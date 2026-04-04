@@ -9,7 +9,7 @@ class server_osm : public server {
     std::string generate_url(const int zoom, const int x, const int y);
 
 public:
-    server_osm(const std::filesystem::path cache_directory);
+    server_osm();
 };
 
 #endif
