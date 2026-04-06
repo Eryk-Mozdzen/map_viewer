@@ -41,6 +41,13 @@ public:
         }
         return false;
     }
+
+    void clear() {
+        const std::unique_lock<std::mutex> lock(mutex_);
+        while(!queue_.empty()) {
+            queue_.pop();
+        }
+    }
 };
 
 #endif

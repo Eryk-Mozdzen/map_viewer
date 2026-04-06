@@ -27,6 +27,10 @@ wms_bhmw::wms_bhmw()
           "Safari/537.36"} {
 }
 
+void wms_bhmw::transparent(const bool enable) {
+    enable_transparent = enable;
+}
+
 std::string wms_bhmw::generate_url(const int zoom, const int x, const int y) {
     const auto [lat1, lon1] = num_to_deg(zoom, x + 0, y + 0);
     const auto [lat2, lon2] = num_to_deg(zoom, x + 1, y + 1);
@@ -40,17 +44,19 @@ std::string wms_bhmw::generate_url(const int zoom, const int x, const int y) {
     ss << "&VERSION=1.3.0";
     ss << "&REQUEST=GetMap";
     ss << "&FORMAT=image/png";
-    ss << "&TRANSPARENT=true";
     ss << "&LAYERS=ENC";
     ss << "&CSBOOL=2";
     ss << "&CSVALUE=8,,,8,,2,1";
-    ss << "&OBJECTFILTERNEGATION=true";
-    ss << "&OBJECT=LNDARE,M_COVR,BUAARE";
     ss << "&CRS=EPSG:3857";
     ss << "&STYLES=";
     ss << "&WIDTH=256";
     ss << "&HEIGHT=256";
     ss << "&BBOX=" << minx << "," << miny << "," << maxx << "," << maxy;
+    if(enable_transparent) {
+        ss << "&TRANSPARENT=true";
+        ss << "&OBJECTFILTERNEGATION=true";
+        ss << "&OBJECT=LNDARE,M_COVR,BUAARE";
+    }
 
     return ss.str();
 }

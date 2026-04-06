@@ -1,6 +1,7 @@
 #ifndef WMS_HPP
 #define WMS_HPP
 
+#include <atomic>
 #include <chrono>
 #include <filesystem>
 #include <map>
@@ -18,6 +19,7 @@ class wms {
     queue<std::tuple<int, int, int>> download_queue;
     std::jthread download_thread;
     std::map<std::tuple<int, int, int>, GLuint> textures;
+    std::atomic_bool cache_clear;
 
     virtual std::string generate_url(const int zoom, const int x, const int y) = 0;
 
@@ -28,6 +30,7 @@ public:
     ~wms();
 
     void draw(ImDrawList &drawer, const ImVec2 position, const int zoom, const int x, const int y);
+    void clear_cache();
 };
 
 #endif

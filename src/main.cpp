@@ -48,6 +48,7 @@ int main() {
     int zoom = 10;
     bool use_osm = true;
     bool use_bhmw = true;
+    bool transparent_bhmw = true;
 
     wms_osm osm;
     wms_bhmw bhmw;
@@ -72,8 +73,12 @@ int main() {
         ImGui::Text("offset x %f", offset.x);
         ImGui::Text("offset y %f", offset.y);
         ImGui::Text("zoom %d", zoom);
-        ImGui::Checkbox("use OSM", &use_osm);
-        ImGui::Checkbox("use BHMW", &use_bhmw);
+        ImGui::Checkbox("OSM enable", &use_osm);
+        ImGui::Checkbox("BHMW enable", &use_bhmw);
+        if(ImGui::Checkbox("BHMW transparent", &transparent_bhmw)) {
+            bhmw.transparent(transparent_bhmw);
+            bhmw.clear_cache();
+        }
 
         const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
         const ImVec2 canvas_sz = ImGui::GetContentRegionAvail();

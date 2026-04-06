@@ -23,15 +23,28 @@ static std::string get_filename(const std::tuple<int, int, int> coordinates) {
 wms::wms(const std::filesystem::path cache_directory,
          const std::chrono::milliseconds minimal_request_period,
          const std::string user_agent)
-    : cache_directory{cache_directory} {
-    if(!std::filesystem::exists(cache_directory)) {
-        std::filesystem::create_directories(cache_directory);
-    }
-
+    : cache_directory{cache_directory}, cache_clear{false} {
     download_thread = std::jthread([this, minimal_request_period, user_agent](std::stop_token st) {
         std::chrono::steady_clock::time_point downland_timepoint = std::chrono::steady_clock::now();
 
         while(!st.stop_requested()) {
+            if(cache_clear) {
+                cache_clear = false;
+
+                download_queue.clear();
+
+                for(const auto &[coords, texture] : textures) {
+                    glDeleteTextures(1, &texture);
+                }
+                textures.clear();
+
+                std::filesystem::remove_all(this->cache_directory);
+            }
+
+            if(!std::filesystem::exists(this->cache_directory)) {
+                std::filesystem::create_directories(this->cache_directory);
+            }
+
             std::tuple<int, int, int> coordinates;
             try {
                 coordinates = download_queue.pop(std::chrono::milliseconds(250));
@@ -126,4 +139,8 @@ void wms::draw(ImDrawList &drawer,
         drawer.AddImage(static_cast<ImTextureID>(textures.at(coordinates)), position,
                         ImVec2(position.x + 256, position.y + 256));
     }
+}
+
+void wms::clear_cache() {
+    cache_clear = true;
 }
