@@ -1,11 +1,11 @@
 #include <cmath>
-#include <iostream>
 
 #include <GLFW/glfw3.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <imgui.h>
 
+#include "wms.hpp"
 #include "wms_bhmw.hpp"
 #include "wms_osm.hpp"
 
@@ -84,8 +84,6 @@ int main() {
         const ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
         const ImVec2 canvas_p1 = canvas_p0 + canvas_sz;
 
-        constexpr int tile = 256;
-
         const ImGuiIO &io = ImGui::GetIO();
         const ImVec2 canvas_mouse = io.MousePos - canvas_p0 - (0.5 * canvas_sz);
         ImGui::InvisibleButton("canvas", canvas_sz,
@@ -106,22 +104,22 @@ int main() {
         ImDrawList *drawer = ImGui::GetWindowDrawList();
         drawer->PushClipRect(canvas_p0, canvas_p1, true);
 
-        const int x0 = std::floor((-(0.5 * canvas_sz.x) - offset.x) / tile);
-        const int y0 = std::floor((-(0.5 * canvas_sz.y) - offset.y) / tile);
-        const int x1 = std::ceil(canvas_sz.x / tile);
-        const int y1 = std::ceil(canvas_sz.y / tile);
-        const int px = canvas_p0.x + (0.5 * canvas_sz.x) + offset.x + (tile * x0);
-        const int py = canvas_p0.y + (0.5 * canvas_sz.y) + offset.y + (tile * y0);
+        const int x0 = std::floor((-(canvas_sz.x / 2) - offset.x) / wms::tile_size);
+        const int y0 = std::floor((-(canvas_sz.y / 2) - offset.y) / wms::tile_size);
+        const int x1 = std::ceil(canvas_sz.x / wms::tile_size);
+        const int y1 = std::ceil(canvas_sz.y / wms::tile_size);
+        const int px = canvas_p0.x + (canvas_sz.x / 2) + offset.x + (wms::tile_size * x0);
+        const int py = canvas_p0.y + (canvas_sz.y / 2) + offset.y + (wms::tile_size * y0);
 
         for(int y = y0; y <= (y0 + y1); y++) {
             for(int x = x0; x <= (x0 + x1); x++) {
                 if(use_osm) {
-                    osm.draw(*drawer, ImVec2(px + (tile * (x - x0)), py + (tile * (y - y0))), zoom,
-                             x, y);
+                    osm.draw(drawer, px + (wms::tile_size * (x - x0)),
+                             py + (wms::tile_size * (y - y0)), zoom, x, y);
                 }
                 if(use_bhmw) {
-                    bhmw.draw(*drawer, ImVec2(px + (tile * (x - x0)), py + (tile * (y - y0))), zoom,
-                              x, y);
+                    bhmw.draw(drawer, px + (wms::tile_size * (x - x0)),
+                              py + (wms::tile_size * (y - y0)), zoom, x, y);
                 }
             }
         }

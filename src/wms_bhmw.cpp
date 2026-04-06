@@ -31,9 +31,9 @@ void wms_bhmw::transparent(const bool enable) {
     enable_transparent = enable;
 }
 
-std::string wms_bhmw::generate_url(const int zoom, const int x, const int y) {
-    const auto [lat1, lon1] = num_to_deg(zoom, x + 0, y + 0);
-    const auto [lat2, lon2] = num_to_deg(zoom, x + 1, y + 1);
+std::string wms_bhmw::generate_url(const int tile_zoom, const int tile_x, const int tile_y) {
+    const auto [lat1, lon1] = num_to_deg(tile_zoom, tile_x + 0, tile_y + 0);
+    const auto [lat2, lon2] = num_to_deg(tile_zoom, tile_x + 1, tile_y + 1);
 
     const auto [minx, maxy] = latlon_to_mercator(lat1, lon1);
     const auto [maxx, miny] = latlon_to_mercator(lat2, lon2);

@@ -92,18 +92,19 @@ wms::~wms() {
     }
 }
 
-void wms::draw(ImDrawList &drawer,
-               const ImVec2 position,
-               const int zoom,
-               const int x,
-               const int y) {
-    const int tiles = 1 << zoom;
+void wms::draw(ImDrawList *drawer,
+               const int screen_x,
+               const int screen_y,
+               const int tile_zoom,
+               const int tile_x,
+               const int tile_y) {
+    const int tiles = 1 << tile_zoom;
 
-    if((x < 0) || (x >= tiles) || (y < 0) || (y >= tiles)) {
+    if((tile_x < 0) || (tile_x >= tiles) || (tile_y < 0) || (tile_y >= tiles)) {
         return;
     }
 
-    const std::tuple<int, int, int> coordinates(zoom, x, y);
+    const std::tuple<int, int, int> coordinates(tile_zoom, tile_x, tile_y);
 
     const std::filesystem::path filepath = cache_directory / get_filename(coordinates);
 
@@ -120,7 +121,7 @@ void wms::draw(ImDrawList &drawer,
         int channels;
         unsigned char *pixels = stbi_load(filepath.c_str(), &width, &height, &channels, 4);
 
-        if((width == 256) && (height == 256)) {
+        if((width == tile_size) && (height == tile_size)) {
             GLuint texture;
             glGenTextures(1, &texture);
             glBindTexture(GL_TEXTURE_2D, texture);
@@ -136,8 +137,8 @@ void wms::draw(ImDrawList &drawer,
     }
 
     if(textures.contains(coordinates)) {
-        drawer.AddImage(static_cast<ImTextureID>(textures.at(coordinates)), position,
-                        ImVec2(position.x + 256, position.y + 256));
+        drawer->AddImage(textures.at(coordinates), ImVec2(screen_x, screen_y),
+                         ImVec2(screen_x + tile_size, screen_y + tile_size));
     }
 }
 
