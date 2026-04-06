@@ -44,7 +44,7 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    ImVec2 offset(-143856, -83068);
+    ImVec2 offset(-144506, -83391);
     int zoom = 10;
     bool use_osm = true;
     bool use_bhmw = true;
@@ -82,35 +82,37 @@ int main() {
         constexpr int tile = 256;
 
         const ImGuiIO &io = ImGui::GetIO();
+        const ImVec2 canvas_mouse = io.MousePos - canvas_p0 - (0.5 * canvas_sz);
         ImGui::InvisibleButton("canvas", canvas_sz,
                                ImGuiButtonFlags_MouseButtonLeft |
                                    ImGuiButtonFlags_MouseButtonRight);
         if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Right)) {
-            offset.x += io.MouseDelta.x;
-            offset.y += io.MouseDelta.y;
+            offset = offset + io.MouseDelta;
         }
         if((io.MouseWheel > 0) && (zoom < 20)) {
-            offset.x *= 2;
-            offset.y *= 2;
+            offset = (2 * offset) - canvas_mouse;
             zoom++;
         }
         if((io.MouseWheel < 0) && (zoom > 0)) {
             zoom--;
-            offset.x /= 2;
-            offset.y /= 2;
+            offset = 0.5 * (offset + canvas_mouse);
         }
 
         ImDrawList *drawer = ImGui::GetWindowDrawList();
         drawer->PushClipRect(canvas_p0, canvas_p1, true);
-        for(int y = (static_cast<int>(-offset.y) / tile);
-            y <= (static_cast<int>(canvas_sz.y - offset.y) / tile); y++) {
-            for(int x = (static_cast<int>(-offset.x) / tile);
-                x <= (static_cast<int>(canvas_sz.x - offset.x) / tile); x++) {
+        for(int y = std::floor((-(0.5 * canvas_sz.y) - offset.y) / tile);
+            y <= std::ceil(((0.5 * canvas_sz.y) - offset.y) / tile); y++) {
+            for(int x = std::floor((-(0.5 * canvas_sz.x) - offset.x) / tile);
+                x <= std::ceil(((0.5 * canvas_sz.x) - offset.x) / tile); x++) {
                 if(use_osm) {
-                    osm.draw(*drawer, canvas_p0 + offset + tile * ImVec2(x, y), zoom, x, y);
+                    osm.draw(*drawer,
+                             canvas_p0 + (0.5 * canvas_sz) + offset + (tile * ImVec2(x, y)), zoom,
+                             x, y);
                 }
                 if(use_bhmw) {
-                    bhmw.draw(*drawer, canvas_p0 + offset + tile * ImVec2(x, y), zoom, x, y);
+                    bhmw.draw(*drawer,
+                              canvas_p0 + (0.5 * canvas_sz) + offset + (tile * ImVec2(x, y)), zoom,
+                              x, y);
                 }
             }
         }
