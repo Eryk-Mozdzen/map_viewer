@@ -106,20 +106,20 @@ int main() {
 
         const int x0 = std::floor((-(canvas_sz.x / 2) - offset.x) / wms::tile_size);
         const int y0 = std::floor((-(canvas_sz.y / 2) - offset.y) / wms::tile_size);
-        const int x1 = std::ceil(canvas_sz.x / wms::tile_size);
-        const int y1 = std::ceil(canvas_sz.y / wms::tile_size);
+        const int xn = std::ceil(canvas_sz.x / wms::tile_size);
+        const int yn = std::ceil(canvas_sz.y / wms::tile_size);
         const int px = canvas_p0.x + (canvas_sz.x / 2) + offset.x + (wms::tile_size * x0);
         const int py = canvas_p0.y + (canvas_sz.y / 2) + offset.y + (wms::tile_size * y0);
 
-        for(int y = y0; y <= (y0 + y1); y++) {
-            for(int x = x0; x <= (x0 + x1); x++) {
+        for(int y = 0; y <= yn; y++) {
+            for(int x = 0; x <= xn; x++) {
                 if(use_osm) {
-                    osm.draw(drawer, px + (wms::tile_size * (x - x0)),
-                             py + (wms::tile_size * (y - y0)), zoom, x, y);
+                    osm.draw(px + (wms::tile_size * x), py + (wms::tile_size * y), zoom, x + x0,
+                             y + y0);
                 }
                 if(use_bhmw) {
-                    bhmw.draw(drawer, px + (wms::tile_size * (x - x0)),
-                              py + (wms::tile_size * (y - y0)), zoom, x, y);
+                    bhmw.draw(px + (wms::tile_size * x), py + (wms::tile_size * y), zoom, x + x0,
+                              y + y0);
                 }
             }
         }

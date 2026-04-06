@@ -10,7 +10,6 @@
 #include <tuple>
 
 #include <GLFW/glfw3.h>
-#include <imgui.h>
 
 #include "queue.hpp"
 
@@ -31,8 +30,7 @@ public:
         const std::string user_agent = "app");
     ~wms();
 
-    void draw(ImDrawList *drawer,
-              const int screen_x,
+    void draw(const int screen_x,
               const int screen_y,
               const int tile_zoom,
               const int tile_x,

@@ -92,8 +92,7 @@ wms::~wms() {
     }
 }
 
-void wms::draw(ImDrawList *drawer,
-               const int screen_x,
+void wms::draw(const int screen_x,
                const int screen_y,
                const int tile_zoom,
                const int tile_x,
@@ -137,8 +136,8 @@ void wms::draw(ImDrawList *drawer,
     }
 
     if(textures.contains(coordinates)) {
-        drawer->AddImage(textures.at(coordinates), ImVec2(screen_x, screen_y),
-                         ImVec2(screen_x + tile_size, screen_y + tile_size));
+        ImGui::GetWindowDrawList()->AddImage(textures.at(coordinates), ImVec2(screen_x, screen_y),
+                                             ImVec2(screen_x + tile_size, screen_y + tile_size));
     }
 }
 
