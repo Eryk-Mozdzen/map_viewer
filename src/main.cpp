@@ -100,22 +100,27 @@ int main() {
 
         ImDrawList *drawer = ImGui::GetWindowDrawList();
         drawer->PushClipRect(canvas_p0, canvas_p1, true);
-        for(int y = std::floor((-(0.5 * canvas_sz.y) - offset.y) / tile);
-            y <= std::ceil(((0.5 * canvas_sz.y) - offset.y) / tile); y++) {
-            for(int x = std::floor((-(0.5 * canvas_sz.x) - offset.x) / tile);
-                x <= std::ceil(((0.5 * canvas_sz.x) - offset.x) / tile); x++) {
+
+        const int x0 = std::floor((-(0.5 * canvas_sz.x) - offset.x) / tile);
+        const int y0 = std::floor((-(0.5 * canvas_sz.y) - offset.y) / tile);
+        const int x1 = std::ceil(canvas_sz.x / tile);
+        const int y1 = std::ceil(canvas_sz.y / tile);
+        const int px = canvas_p0.x + (0.5 * canvas_sz.x) + offset.x + (tile * x0);
+        const int py = canvas_p0.y + (0.5 * canvas_sz.y) + offset.y + (tile * y0);
+
+        for(int y = y0; y <= (y0 + y1); y++) {
+            for(int x = x0; x <= (x0 + x1); x++) {
                 if(use_osm) {
-                    osm.draw(*drawer,
-                             canvas_p0 + (0.5 * canvas_sz) + offset + (tile * ImVec2(x, y)), zoom,
+                    osm.draw(*drawer, ImVec2(px + (tile * (x - x0)), py + (tile * (y - y0))), zoom,
                              x, y);
                 }
                 if(use_bhmw) {
-                    bhmw.draw(*drawer,
-                              canvas_p0 + (0.5 * canvas_sz) + offset + (tile * ImVec2(x, y)), zoom,
+                    bhmw.draw(*drawer, ImVec2(px + (tile * (x - x0)), py + (tile * (y - y0))), zoom,
                               x, y);
                 }
             }
         }
+
         drawer->PopClipRect();
 
         ImGui::End();
