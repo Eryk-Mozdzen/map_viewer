@@ -44,6 +44,7 @@ std::string wms_bhmw::generate_url(const int tile_zoom, const int tile_x, const 
     ss << "&VERSION=1.3.0";
     ss << "&REQUEST=GetMap";
     ss << "&FORMAT=image/png";
+    ss << "&TRANSPARENT=true";
     ss << "&LAYERS=ENC";
     ss << "&CRS=EPSG:3857";
     ss << "&STYLES=";
@@ -51,11 +52,27 @@ std::string wms_bhmw::generate_url(const int tile_zoom, const int tile_x, const 
     ss << "&HEIGHT=256";
     ss << "&BBOX=" << minx << "," << miny << "," << maxx << "," << maxy;
 
-    ss << "&CSBOOL=2183";
-    ss << "&CSVALUE=8,,,8,,3,1";
+    int accumulator = 0;
+    if(enable_lights) {
+        accumulator += 1;
+    }
+    if(enable_text) {
+        accumulator += 2;
+    }
+    if(enable_soundings) {
+        accumulator += 384;
+    }
+    if(enable_gray_shades) {
+        accumulator += 1024;
+    }
+    if(enable_chart_boundaries) {
+        accumulator += 8192;
+    }
+    ss << "&CSBOOL=" << std::hex << accumulator << std::dec;
+    ss << "&CSVALUE=" << safety_contour << ",,," << safety_depth << ",,"
+       << static_cast<int>(display) << "," << static_cast<int>(color);
 
     if(enable_transparent) {
-        ss << "&TRANSPARENT=true";
         ss << "&OBJECTFILTERNEGATION=true";
         ss << "&OBJECT=LNDARE,M_COVR,BUAARE";
     }
