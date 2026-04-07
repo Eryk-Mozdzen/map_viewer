@@ -45,13 +45,15 @@ std::string wms_bhmw::generate_url(const int tile_zoom, const int tile_x, const 
     ss << "&REQUEST=GetMap";
     ss << "&FORMAT=image/png";
     ss << "&LAYERS=ENC";
-    ss << "&CSBOOL=2";
-    ss << "&CSVALUE=8,,,8,,2,1";
     ss << "&CRS=EPSG:3857";
     ss << "&STYLES=";
     ss << "&WIDTH=256";
     ss << "&HEIGHT=256";
     ss << "&BBOX=" << minx << "," << miny << "," << maxx << "," << maxy;
+
+    ss << "&CSBOOL=2183";
+    ss << "&CSVALUE=8,,,8,,3,1";
+
     if(enable_transparent) {
         ss << "&TRANSPARENT=true";
         ss << "&OBJECTFILTERNEGATION=true";
